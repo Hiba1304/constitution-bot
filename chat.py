@@ -29,6 +29,10 @@ class UserManager:
         return hashlib.sha256(password.encode()).hexdigest()
 
     def create_account(self, username, password, full_name):
+        if not username or not username.strip():
+            return False, "Le nom d'utilisateur ne peut pas être vide."
+        if not password:
+            return False, "Le mot de passe ne peut pas être vide."
         if username in self.users_data:
             return False, "Ce nom d'utilisateur existe déjà."
 
