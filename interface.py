@@ -128,28 +128,39 @@ if not st.session_state.logged_in:
     tab1, tab2 = st.tabs(["Connexion", "Créer un compte"])
 
     with tab1:
-        username = st.text_input("Nom d'utilisateur")
-        password = st.text_input("Mot de passe", type="password")
-        if st.button("Se connecter"):
-            success, msg = bot.user_manager.login(username, password)
-            if success:
-                st.session_state.logged_in = True
-                st.session_state.username = username
-                st.session_state.full_name = bot.user_manager.get_user_info(username)["full_name"]
-                st.success(msg)
+        with st.form("login_form"):
+            username = st.text_input("Nom d'utilisateur")
+            password = st.text_input("Mot de passe", type="password")
+            submitted = st.form_submit_button("Se connecter")
+        if submitted:
+            if not username.strip() or not password:
+                st.error("Merci de remplir le nom d'utilisateur et le mot de passe.")
             else:
-                st.error(msg)
+                success, msg = bot.user_manager.login(username, password)
+                if success:
+                    st.session_state.logged_in = True
+                    st.session_state.username = username
+                    st.session_state.full_name = bot.user_manager.get_user_info(username)["full_name"]
+                    st.success(msg)
+                    st.rerun()
+                else:
+                    st.error(msg)
 
     with tab2:
-        full_name = st.text_input("Nom complet")
-        new_username = st.text_input("Nouveau nom d'utilisateur")
-        new_password = st.text_input("Nouveau mot de passe", type="password")
-        if st.button("Créer le compte"):
-            success, msg = bot.user_manager.create_account(new_username, new_password, full_name)
-            if success:
-                st.success(msg)
+        with st.form("signup_form"):
+            full_name = st.text_input("Nom complet")
+            new_username = st.text_input("Nouveau nom d'utilisateur")
+            new_password = st.text_input("Nouveau mot de passe", type="password")
+            submitted = st.form_submit_button("Créer le compte")
+        if submitted:
+            if not full_name.strip() or not new_username.strip() or not new_password:
+                st.error("Merci de remplir les trois champs (nom complet, nom d'utilisateur, mot de passe).")
             else:
-                st.error(msg)
+                success, msg = bot.user_manager.create_account(new_username, new_password, full_name)
+                if success:
+                    st.success(msg)
+                else:
+                    st.error(msg)
 
 else:
     st.sidebar.success(f"Connecté en tant que : {st.session_state.full_name}")
